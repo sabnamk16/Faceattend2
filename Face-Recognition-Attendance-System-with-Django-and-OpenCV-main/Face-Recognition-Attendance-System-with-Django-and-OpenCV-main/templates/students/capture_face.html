@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Capture Face - {{ student.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-camera"></i> Capture Face for {{ student.name }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <video id="video" width="640" height="480" autoplay style="border-radius: 10px;"></video>
+                    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+                </div>
+                
+                <div class="text-center">
+                    <button id="captureBtn" class="btn btn-primary btn-lg">
+                        <i class="bi bi-camera-fill"></i> Capture Face
+                    </button>
+                    <a href="{% url 'student_detail' student.pk %}" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                </div>
+                
+                <div id="message" class="alert mt-4" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('captureBtn');
+    const messageDiv = document.getElementById('message');
+    
+    // Access webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(err => {
+            console.error("Error accessing webcam:", err);
+            showMessage('Error accessing webcam. Please check permissions.', 'danger');
+        });
+    
+    captureBtn.addEventListener('click', () => {
+        // Draw video frame to canvas
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, 640, 480);
+        
+        // Convert canvas to blob
+        canvas.toBlob(blob => {
+            // Send to server
+            const imageData = canvas.toDataURL('image/jpeg');
+            
+            fetch("{% url 'save_face_encoding' student.student_id %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: imageData })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = "{% url 'student_detail' student.pk %}";
+                    }, 2000);
+                } else {
+                    showMessage(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Error saving face encoding', 'danger');
+            });
+        }, 'image/jpeg');
+    });
+    
+    function showMessage(text, type) {
+        messageDiv.className = `alert alert-${type}`;
+        messageDiv.textContent = text;
+        messageDiv.style.display = 'block';
+    }
+</script>
+{% endblock %}

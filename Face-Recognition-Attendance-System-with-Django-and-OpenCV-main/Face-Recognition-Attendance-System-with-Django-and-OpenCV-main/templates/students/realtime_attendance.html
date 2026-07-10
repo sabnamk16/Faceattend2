@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Real-time Attendance{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-camera-video-fill"></i> Real-time Face Recognition Attendance</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> 
+                    <strong>Instructions:</strong> Position yourself in front of the camera. The system will automatically detect your face and mark attendance.
+                </div>
+                
+                <div class="text-center">
+                    <div class="video-container" style="position: relative; display: inline-block;">
+                        <img src="{% url 'video_feed' %}" alt="Video Feed" 
+                             style="max-width: 100%; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                        <div class="video-overlay" style="position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.7); color: white; padding: 10px 20px; border-radius: 10px;">
+                            <i class="bi bi-broadcast"></i> LIVE
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <a href="{% url 'attendance_list' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-list-check"></i> View Attendance Records
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-house"></i> Back to Dashboard
+                    </a>
+                </div>
+                
+                <div class="alert alert-success mt-4">
+                    <h5><i class="bi bi-check-circle"></i> System Status</h5>
+                    <ul class="mb-0">
+                        <li>Camera: <strong class="text-success">Active</strong></li>
+                        <li>Face Detection: <strong class="text-success">Enabled</strong></li>
+                        <li>Attendance Marking: <strong class="text-success">Automatic</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Today's Marked Attendance -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Today's Attendance</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Attendance records marked today will appear here. Check the full attendance list for complete records.</p>
+                <a href="{% url 'attendance_list' %}" class="btn btn-outline-primary">
+                    View All Records <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .video-container {
+        box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    
+    .video-overlay {
+        animation: pulse 2s infinite;
+    }
+</style>
+{% endblock %}
